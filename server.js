@@ -1,4 +1,3 @@
-//Dependencies
 var express = require('express');
 var http = require('http');
 var path = require('path');
@@ -25,7 +24,9 @@ var gameSize = {
 
 var players = {};
 var room_nums = {};
+
 var rooms = 2;
+
 
 var maxVel = 5;
 var acceleration = 0.15;

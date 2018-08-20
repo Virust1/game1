@@ -1,7 +1,9 @@
 var socket = io();
 var id;
 var room_num;
+
 var gameSize;
+
 
 var size = {
   width: window.innerWidth || document.body.clientWidth,
