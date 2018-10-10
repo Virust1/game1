@@ -300,9 +300,13 @@ function game(){
     stop();
   }
 
+  socket.on('dc',function(){
+    stop();
+  });
+
   function stop() {
     clearInterval(updatesId);
-    socket.emit('dc');
+    //socket.emit('dc');
     mainShowCss();
   }
 }

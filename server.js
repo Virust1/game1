@@ -126,7 +126,6 @@ io.on('connection', function(socket) {
     var room = Math.ceil(Math.random()*rooms);
     room_nums[room] = room;
     players[socket.id] = Player(socket.id,room);
-    socket.join(room);
 
     var data = {};
     data[0] = gameSize;
@@ -164,7 +163,7 @@ io.on('connection', function(socket) {
     delete(players[socket.id]);
   });
   socket.on('dc', function() {
-    delete(players[socket.id]);
+    players[socket.id].room = -1;
   });
 });
 
@@ -306,15 +305,22 @@ function checkPlayers(room){
 }
 
 setInterval(function() {
-  for(var i in room_nums){
+  for(i in room_nums){
     var room = checkPlayers(room_nums[i]);
     update(room);
-    io.sockets.in(room_nums[i]).emit('state', room);
+    for (j in room) {
+      io.sockets.connected[room[j].id].emit('state', room);
+    }
   }
 }, 1000 / 60);
 
 function update(room) {
   collisions(room);
+  organizeRoom(room);
+}
+
+function organizeRoom(room) {
+
 }
 
 function collisions(room) {
@@ -332,6 +338,8 @@ function collisions(room) {
 function checkCollisions(player1, player2) {
   bulletsToPlayer(player1, player2);
   bulletsToPlayer(player2, player1);
+
+  coreCollisions(player1, player2);
 }
 
 function bulletsToPlayer(player1, player2) {
@@ -348,11 +356,18 @@ function bulletsToPlayer(player1, player2) {
             triangle2.x+player2.x, triangle2.y+player2.y, triangle2.height)) {
             bullets.splice(k, 1);
             body[i][j] = false;
-            addShield(player1);
           }
         }
       }
     }
+  }
+}
+
+function coreCollisions(player1, player2) {
+  var dif = Math.hypot(player1.x-player2.x, player1.y-player2.y);
+  if(dif<=(0.85+4/3)*height) {
+    io.sockets.connected[player1.id].emit('dc');
+    io.sockets.connected[player2.id].emit('dc');
   }
 }
 
